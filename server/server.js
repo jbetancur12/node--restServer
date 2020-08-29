@@ -8,11 +8,17 @@ const bodyParser = require('body-parser');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(require('./routes/usuario'));
+//Configuración global de rutas
+app.use(require('./routes'));
 
 mongoose.connect(
   process.env.urlDB,
-  { useNewUrlParser: true, useCreateIndex: true },
+  {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  },
   (err, res) => {
     if (err) throw console.log(err);
 

@@ -3,10 +3,14 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 const Usuario = require('../models/usuario');
+const {
+  verificaToken,
+  verificaAdminRole,
+} = require('../middlewares/autenticacion');
 
 const app = express();
 
-app.get('/usuario', (req, res) => {
+app.get('/usuario', verificaToken, (req, res) => {
   let desde = req.query.desde || 0;
   desde = Number(desde);
 
@@ -24,7 +28,7 @@ app.get('/usuario', (req, res) => {
         });
       }
 
-      Usuario.count({ estado: true }, (err, conteo) => {
+      Usuario.countDocuments({ estado: true }, (err, conteo) => {
         res.json({
           ok: true,
           usuarios,
@@ -34,7 +38,7 @@ app.get('/usuario', (req, res) => {
     });
 });
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificaToken, verificaAdminRole], (req, res) => {
   const { body } = req;
 
   let usuario = new Usuario({
@@ -59,7 +63,7 @@ app.post('/usuario', (req, res) => {
   });
 });
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
   const id = req.params.id;
   const body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
 
@@ -82,7 +86,7 @@ app.put('/usuario/:id', (req, res) => {
   );
 });
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
   const { id } = req.params;
 
   // Usuario.findByIdAndRemove(id, (err, usuarioDeleted) => {
